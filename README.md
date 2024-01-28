@@ -40,14 +40,6 @@ please test on the latest commit in `main` and report your findings via an Issue
 
    `mkdir -p inventory/host_vars/<your-domain>`
 
-3. Copy the sample configuration file:
-
-   `cp examples/config.hjson inventory/host_vars/<your-domain>/config.hjson`
-
-   Edit that file and change the config to your liking. Note: **Do not edit anything inside the {{ }} braces.**
-
-   [Here are all the config options.](https://join-lemmy.org/docs/en/administration/configuration.html#full-config-with-default-values)
-
 4. Copy the sample inventory hosts file:
 
    `cp examples/hosts inventory/hosts`

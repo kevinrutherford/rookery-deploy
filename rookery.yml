@@ -206,14 +206,6 @@
                 dest: "/etc/nginx/sites-enabled/{{ domain }}.conf"
                 state: link
 
-        - name: Add the config.hjson
-          ansible.builtin.template:
-            src: "inventory/host_vars/{{ domain }}/config.hjson"
-            dest: "{{ rookery_base_dir }}/{{ domain }}/rookery.hjson"
-            mode: "0600"
-            owner: "1000"
-            group: "1000"
-
     - name: Enable and start docker service
       ansible.builtin.systemd:
         name: docker
