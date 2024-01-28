@@ -1,5 +1,5 @@
 .PHONY: deploy
 
 deploy:
-	ansible-playbook -i inventory/hosts lemmy.yml
+	ansible-playbook -i inventory/hosts rookery.yml
 
