@@ -1,14 +1,14 @@
 ---
-- name: Uninstall Lemmy
+- name: Uninstall Rookery
   hosts: all
 
   vars_prompt:
     - name: confirm_uninstall
-      prompt: "Do you really want to uninstall Lemmy? This will delete all data and can not be reverted [yes/no]"
+      prompt: "Do you really want to uninstall Rookery? This will delete all data and can not be reverted [yes/no]"
       private: false
 
     - name: delete_certs
-      prompt: "Delete certificates? Select 'no' if you want to reinstall Lemmy [yes/no]"
+      prompt: "Delete certificates? Select 'no' if you want to reinstall Rookery [yes/no]"
       private: false
 
     - name: stop_disable_nginx
@@ -34,7 +34,7 @@
       block:
         - name: Stop docker-compose
           community.docker.docker_compose:
-            project_src: "{{ lemmy_base_dir }}/{{ domain }}"
+            project_src: "{{ rookery_base_dir }}/{{ domain }}"
             state: absent
 
         - name: Delete data
@@ -42,49 +42,17 @@
             path: "{{ item.path }}"
             state: absent
           with_items:
-            - path: "{{ lemmy_base_dir }}/{{ domain }}"
+            - path: "{{ rookery_base_dir }}/{{ domain }}"
             - path: "/etc/nginx/sites-enabled/{{ domain }}.conf"
 
         - name: Remove certbot cronjob
           ansible.builtin.cron:
-            name: certbot-renew-lemmy
+            name: certbot-renew-rookery
             state: absent
 
         - name: Stop and disable Docker
           ansible.builtin.systemd:
             name: docker.service
-            state: stopped
-            enabled: false
-          when: stop_disable_docker_podman | bool
-
-    - name: Run EL specific uninstallation steps
-      when:
-        - ansible_distribution in ['AlmaLinux', 'CentOS', 'RedHat', 'Rocky']
-        - ansible_distribution_major_version | int >= 9
-      block:
-        - name: Stop and remove containers
-          ansible.builtin.command: podman-compose down
-          args:
-            chdir: "{{ lemmy_base_dir }}/{{ domain }}"
-          changed_when: true
-
-        - name: Delete Lemmy data
-          ansible.builtin.file:
-            path: "{{ item.path }}"
-            state: absent
-          loop:
-            - path: "{{ lemmy_base_dir }}/{{ domain }}"
-            - path: "/etc/nginx/conf.d/{{ domain }}.conf"
-
-        - name: Stop and disable certbot-renew.timer
-          ansible.builtin.systemd:
-            name: certbot-renew.timer
-            state: stopped
-            enabled: false
-
-        - name: Stop and disable podman
-          ansible.builtin.systemd:
-            name: podman.service
             state: stopped
             enabled: false
           when: stop_disable_docker_podman | bool
@@ -95,3 +63,4 @@
         state: stopped
         enabled: false
       when: stop_disable_nginx | bool
+
