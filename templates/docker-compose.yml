@@ -22,36 +22,8 @@ services:
     depends_on:
       - rookery-ui
 
-  rookery:
-    image: {{ rookery_docker_image }}
-    hostname: rookery
-    restart: always
-    logging: *default-logging
-    environment:
-{% if rookery_env_vars is defined and rookery_env_vars|length > 0 %}
-{% for item in rookery_env_vars %}
-{% for key, value in item.items() %}
-      - {{ key }}={{ value }}
-{% endfor %}
-{% endfor %}
-{% endif %}
-    volumes:
-      - ./rookery.hjson:/config/config.hjson:Z
-
   rookery-ui:
     image: {{ rookery_docker_ui_image }}
-    environment:
-{% if rookeryui_env_vars is defined and rookeryui_env_vars|length > 0 %}
-{% for item in rookeryui_env_vars %}
-{% for key, value in item.items() %}
-      - {{ key }}={{ value }}
-{% endfor %}
-{% endfor %}
-{% endif %}
-    volumes:
-      - ./volumes/rookery-ui/extra_themes:/app/extra_themes
-    depends_on:
-      - rookery
     restart: always
     logging: *default-logging
 
