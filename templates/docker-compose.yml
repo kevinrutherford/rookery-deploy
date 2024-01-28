@@ -1,0 +1,140 @@
+version: "3.7"
+
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "50m"
+    max-file: "4"
+
+services:
+  proxy:
+    image: docker.io/library/nginx 
+    ports:
+      # actual and only port facing any connection from outside
+      # Note, change the left number if port 1236 is already in use on your system
+      # You could use port 80 if you won't use a reverse proxy
+      - "{{ lemmy_port }}:8536"
+    volumes:
+      - ./nginx_internal.conf:/etc/nginx/nginx.conf:ro,Z
+      - ./proxy_params:/etc/nginx/proxy_params:ro,Z
+    restart: always
+    logging: *default-logging
+    depends_on:
+      - pictrs
+      - lemmy-ui
+
+  lemmy:
+    image: {{ lemmy_docker_image }}
+    hostname: lemmy
+    restart: always
+    logging: *default-logging
+    environment:
+{% if lemmy_env_vars is defined and lemmy_env_vars|length > 0 %}
+{% for item in lemmy_env_vars %}
+{% for key, value in item.items() %}
+      - {{ key }}={{ value }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+    volumes:
+      - ./lemmy.hjson:/config/config.hjson:Z
+    depends_on:
+      - postgres
+      - pictrs
+
+  lemmy-ui:
+    image: {{ lemmy_docker_ui_image }}
+    environment:
+{% if lemmyui_env_vars is defined and lemmyui_env_vars|length > 0 %}
+{% for item in lemmyui_env_vars %}
+{% for key, value in item.items() %}
+      - {{ key }}={{ value }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+    volumes:
+      - ./volumes/lemmy-ui/extra_themes:/app/extra_themes
+    depends_on:
+      - lemmy
+    restart: always
+    logging: *default-logging
+
+  pictrs:
+    image: docker.io/asonix/pictrs:0.4.7
+    # this needs to match the pictrs url in lemmy.hjson
+    hostname: pictrs
+    # we can set options to pictrs like this, here we set max. image size and forced format for conversion
+    # entrypoint: /sbin/tini -- /usr/local/bin/pict-rs -p /mnt -m 4 --image-format webp
+    environment:
+{% if pictrs_env_vars is defined and pictrs_env_vars|length > 0 %}
+{% for item in pictrs_env_vars %}
+{% for key, value in item.items() %}
+      - {{ key }}={{ value }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if pictrs_safety is defined and pictrs_safety|bool == true %}
+      - PICTRS__MEDIA__EXTERNAL_VALIDATION=http://{{ domain }}:14051/api/v1/scan/IPADDR
+{% endif %}
+    user: 991:991
+    volumes:
+      - ./volumes/pictrs:/mnt:Z
+    restart: always
+    logging: *default-logging
+    deploy:
+      resources:
+        limits:
+          memory: 690m
+
+  postgres:
+    image: docker.io/postgres:15-alpine
+    hostname: postgres
+    environment:
+{% if postgres_env_vars is defined and postgres_env_vars|length > 0 %}
+{% for item in postgres_env_vars %}
+{% for key, value in item.items() %}
+      - {{ key }}={{ value }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+    volumes:
+      - ./volumes/postgres:/var/lib/postgresql/data:Z
+      - ./customPostgresql.conf:/etc/postgresql.conf
+    restart: always
+    command: postgres -c config_file=/etc/postgresql.conf
+    shm_size: 1g
+    logging: *default-logging
+
+  postfix:
+    image: docker.io/mwader/postfix-relay
+    environment:
+{% if postfix_env_vars is defined and postfix_env_vars|length > 0 %}
+{% for item in postfix_env_vars %}
+{% for key, value in item.items() %}
+      - {{ key }}={{ value }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+    restart: "always"
+    logging: *default-logging
+
+{% if pictrs_safety is defined and pictrs_safety|bool == true %}
+  pictrs-safety:
+    image: ghcr.io/db0/pictrs-safety:v1.2.2
+    hostname: pictrs-safety
+    environment:
+{% if pictrs_safety_env_vars is defined and pictrs_safety_env_vars|length > 0 %}
+{% for item in pictrs_safety_env_vars %}
+{% for key, value in item.items() %}
+      - {{ key }}={{ value }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+    ports:
+      - "14051:14051"
+    user: 991:991
+    restart: always
+    logging: *default-logging
+    depends_on:
+      - pictrs
+{% endif %}
