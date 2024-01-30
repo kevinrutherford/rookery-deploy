@@ -7,23 +7,23 @@ x-logging: &default-logging
     max-file: "4"
 
 services:
-  proxy:
+  router:
     image: docker.io/library/nginx
     ports:
       # actual and only port facing any connection from outside
-      # Note, change the left number if port 1236 is already in use on your system
-      # You could use port 80 if you won't use a reverse proxy
-      - "{{ rookery_port }}:8536"
+      - "44000:44000"
     volumes:
       - ./nginx_internal.conf:/etc/nginx/nginx.conf:ro,Z
       - ./proxy_params:/etc/nginx/proxy_params:ro,Z
     restart: always
     logging: *default-logging
+    links:
+      - ui
     depends_on:
-      - rookery-ui
+      - ui
 
-  rookery-ui:
-    image: {{ rookery_docker_ui_image }}
+  ui:
+    image: "kevinrutherford/rookery-ui:latest"
     restart: always
     logging: *default-logging
 

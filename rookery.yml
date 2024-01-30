@@ -184,7 +184,6 @@
           notify: Reload nginx
           vars:
             rookery_docker_image: "kevinrutherford/rookery:latest"
-            rookery_docker_ui_image: "kevinrutherford/rookery-ui:latest"
 
         - name: Set up nginx sites-enabled symlink
           notify: Reload nginx
