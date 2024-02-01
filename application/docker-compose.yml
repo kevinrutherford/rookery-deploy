@@ -16,9 +16,16 @@ services:
     restart: always
     logging: *default-logging
     links:
+      - collections
       - ui
     depends_on:
+      - collections
       - ui
+
+  collections:
+    image: "kevinrutherford/rookery-collections:latest"
+    restart: always
+    logging: *default-logging
 
   ui:
     image: "kevinrutherford/rookery-ui:latest"
