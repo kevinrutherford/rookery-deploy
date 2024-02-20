@@ -7,6 +7,7 @@ x-logging: &default-logging
     max-file: "4"
 
 services:
+
   router:
     image: docker.io/library/nginx
     ports:
@@ -16,13 +17,13 @@ services:
     restart: always
     logging: *default-logging
     links:
-      - collections
+      - backend
       - ui
     depends_on:
-      - collections
+      - backend
       - ui
 
-  collections:
+  backend:
     image: "kevinrutherford/rookery-collections:latest"
     restart: always
     logging: *default-logging
