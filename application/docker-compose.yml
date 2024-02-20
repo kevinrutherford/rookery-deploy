@@ -24,7 +24,7 @@ services:
       - ui
 
   backend:
-    image: "kevinrutherford/rookery-collections:latest"
+    image: "kevinrutherford/rookery-backend:latest"
     restart: always
     logging: *default-logging
 
