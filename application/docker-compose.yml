@@ -42,7 +42,7 @@ services:
     depends_on:
       - commands
       - views
-    restart: no
+    restart: "no"
     tty: true
     logging: *default-logging
 
