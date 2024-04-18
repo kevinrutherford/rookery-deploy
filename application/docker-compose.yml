@@ -37,6 +37,15 @@ services:
     tty: true
     logging: *default-logging
 
+  sagas:
+    image: "kevinrutherford/rookery-sagas:latest"
+    depends_on:
+      - commands
+      - views
+    restart: no
+    tty: true
+    logging: *default-logging
+
   ui:
     image: "kevinrutherford/rookery-ui:latest"
     depends_on:
