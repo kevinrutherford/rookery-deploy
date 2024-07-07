@@ -25,6 +25,8 @@ services:
     image: "kevinrutherford/rookery-commands:latest"
     depends_on:
       - eventstore
+    environment:
+      - DEVELOPMENT_BEARER_TOKEN=${DEVELOPMENT_BEARER_TOKEN}
     restart: always
     tty: true
     logging: *default-logging
@@ -33,6 +35,8 @@ services:
     image: "kevinrutherford/rookery-views:latest"
     depends_on:
       - eventstore
+    environment:
+      - DEVELOPMENT_BEARER_TOKEN=${DEVELOPMENT_BEARER_TOKEN}
     restart: always
     tty: true
     logging: *default-logging
@@ -42,6 +46,8 @@ services:
     depends_on:
       - commands
       - views
+    environment:
+      - DEVELOPMENT_BEARER_TOKEN=${DEVELOPMENT_BEARER_TOKEN}
     restart: "no"
     tty: true
     logging: *default-logging
@@ -51,6 +57,9 @@ services:
     depends_on:
       - commands
       - views
+    environment:
+      - DEVELOPMENT_BEARER_TOKEN=${DEVELOPMENT_BEARER_TOKEN}
+      - DEVELOPMENT_USERNAME=${DEVELOPMENT_USERNAME}
     restart: always
     logging: *default-logging
 
