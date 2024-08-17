@@ -73,6 +73,9 @@ services:
       - views
       - eventstore
     environment:
+      - USER_A1_ID=${USER_A1_ID}
+      - USER_A2_ID=${USER_A2_ID}
+      - USER_A3_ID=${USER_A3_ID}
       - USER_CRB_ID=${USER_CRB_ID}
     restart: "no"
     tty: true
