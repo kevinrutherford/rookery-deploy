@@ -71,6 +71,7 @@ services:
     depends_on:
       - commands
       - views
+      - eventstore
     environment:
       - USER_CRB_ID=${USER_CRB_ID}
     restart: "no"
