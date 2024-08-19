@@ -36,6 +36,21 @@
       when: not vars_file.stat.exists
       become: false
 
+    - name: Check for env file
+      delegate_to: localhost
+      ansible.builtin.stat:
+        path: "inventory/host_vars/{{ domain }}/env.sh"
+      register: env_file
+      become: false
+
+    - name: Missing env file
+      delegate_to: localhost
+      ansible.builtin.fail:
+        msg: >-
+          Missing env file, please refer to the installations instructions.
+      when: not env_file.stat.exists
+      become: false
+
     - name: Install python for Ansible
       # python2-minimal instead of python-minimal for ubuntu 20.04 and up
       ansible.builtin.raw: test -e /usr/bin/python || test -e /usr/bin/python3 || (apt -y update && apt install -y python3-minimal python3-setuptools)
@@ -163,6 +178,9 @@
         - src: "application/nginx_router.conf"
           dest: "{{ rookery_base_dir }}/{{ domain }}/nginx_router.conf"
           mode: "0644"
+        - src: "inventory/host_vars/{{ domain }}/env.sh"
+          dest: "{{ rookery_base_dir }}/{{ domain }}/.env"
+          mode: "0444"
 
     - name: Deploy the reverse proxy
       block:
