@@ -73,6 +73,7 @@ services:
       - views
       - eventstore
     environment:
+      - ROOKERY_HOSTNAME=${ROOKERY_HOSTNAME}
       - USER_A1_ID=${USER_A1_ID}
       - USER_A2_ID=${USER_A2_ID}
       - USER_A3_ID=${USER_A3_ID}
